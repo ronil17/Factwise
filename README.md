@@ -46,6 +46,10 @@ src/
   types.ts            # Employee type
 ```
 
+## Screenshots
+<img width="1470" height="799" alt="Screenshot 2026-08-26 at 22 34 35" src="https://github.com/user-attachments/assets/c67a545b-82e6-4b18-b145-a05935cee52d" />
+
+
 ## Notes
 
 The dataset is the one provided with the assignment. Column colours are mapped per
