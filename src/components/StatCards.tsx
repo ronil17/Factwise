@@ -1,4 +1,8 @@
 import { useMemo } from 'react';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
 import type { Employee } from '../types';
 import { currency } from '../utils/format';
 
@@ -7,7 +11,7 @@ interface StatCardsProps {
 }
 
 export function StatCards({ employees }: StatCardsProps) {
-  const stats = useMemo(() => {
+  const cards = useMemo(() => {
     const total = employees.length;
     const active = employees.filter((e) => e.isActive).length;
     const avgSalary = total
@@ -18,25 +22,42 @@ export function StatCards({ employees }: StatCardsProps) {
       : 0;
     const departments = new Set(employees.map((e) => e.department)).size;
 
-    return { total, active, avgSalary, avgRating, departments };
+    return [
+      { label: 'Employees', value: String(total), hint: `${active} active` },
+      { label: 'Departments', value: String(departments), hint: 'across the org' },
+      { label: 'Avg. Salary', value: currency(avgSalary), hint: 'per employee' },
+      { label: 'Avg. Rating', value: avgRating.toFixed(2), hint: 'out of 5.0' },
+    ];
   }, [employees]);
 
-  const cards = [
-    { label: 'Employees', value: String(stats.total), hint: `${stats.active} active` },
-    { label: 'Departments', value: String(stats.departments), hint: 'across the org' },
-    { label: 'Avg. Salary', value: currency(stats.avgSalary), hint: 'per employee' },
-    { label: 'Avg. Rating', value: stats.avgRating.toFixed(2), hint: 'out of 5.0' },
-  ];
-
   return (
-    <div className="stat-cards">
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+        gap: 2,
+        mb: 2.5,
+      }}
+    >
       {cards.map((card) => (
-        <div key={card.label} className="stat-card">
-          <span className="stat-card__label">{card.label}</span>
-          <span className="stat-card__value">{card.value}</span>
-          <span className="stat-card__hint">{card.hint}</span>
-        </div>
+        <Card key={card.label} variant="outlined">
+          <CardContent>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: 600 }}
+            >
+              {card.label}
+            </Typography>
+            <Typography variant="h4" sx={{ my: 0.5, fontWeight: 700 }}>
+              {card.value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {card.hint}
+            </Typography>
+          </CardContent>
+        </Card>
       ))}
-    </div>
+    </Box>
   );
 }

@@ -8,6 +8,18 @@ import {
   type GridReadyEvent,
   type GridApi,
 } from 'ag-grid-community';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import Divider from '@mui/material/Divider';
+import SearchIcon from '@mui/icons-material/Search';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import type { Employee } from '../types';
 import { employees as employeeData } from '../data/employees';
 import { currency } from '../utils/format';
@@ -23,10 +35,10 @@ import {
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
-// Match AG Grid's look to the rest of the dashboard.
+// Match AG Grid's look to the MUI theme.
 const gridTheme = themeQuartz.withParams({
   accentColor: '#2563eb',
-  borderColor: '#e9ecef',
+  borderColor: '#eaecf0',
   headerBackgroundColor: '#f8f9fb',
   headerTextColor: '#475467',
   headerFontWeight: 600,
@@ -111,6 +123,7 @@ export function Dashboard() {
         headerName: 'Skills',
         field: 'skills',
         cellRenderer: SkillsCell,
+        valueFormatter: (p) => (p.value as string[])?.join(', ') ?? '',
         minWidth: 220,
         flex: 1,
         sortable: false,
@@ -148,42 +161,63 @@ export function Dashboard() {
   }, []);
 
   return (
-    <div className="dashboard">
+    <Box>
       <StatCards employees={rowData} />
 
-      <div className="panel">
-        <div className="toolbar">
-          <div className="chips">
+      <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={2}
+          sx={{
+            p: 2,
+            alignItems: { xs: 'stretch', md: 'center' },
+            justifyContent: 'space-between',
+          }}
+        >
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={department}
+            onChange={(_, val) => val && setDepartment(val)}
+            sx={{ flexWrap: 'wrap' }}
+          >
             {departments.map((dept) => (
-              <button
-                key={dept}
-                type="button"
-                className={`chip ${department === dept ? 'chip--active' : ''}`}
-                onClick={() => setDepartment(dept)}
-              >
+              <ToggleButton key={dept} value={dept}>
                 {dept}
-              </button>
+              </ToggleButton>
             ))}
-          </div>
+          </ToggleButtonGroup>
 
-          <div className="toolbar__right">
-            <div className="search">
-              <SearchIcon />
-              <input
-                type="search"
-                placeholder="Search employees…"
-                value={quickFilter}
-                onChange={(e) => setQuickFilter(e.target.value)}
-                aria-label="Search employees"
-              />
-            </div>
-            <button type="button" className="btn" onClick={exportCsv}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <TextField
+              size="small"
+              placeholder="Search employees…"
+              value={quickFilter}
+              onChange={(e) => setQuickFilter(e.target.value)}
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<FileDownloadOutlinedIcon />}
+              onClick={exportCsv}
+            >
               Export CSV
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Stack>
+        </Stack>
 
-        <div className="grid-wrap">
+        <Divider />
+
+        <Box>
           <AgGridReact<Employee>
             theme={gridTheme}
             rowData={rowData}
@@ -199,21 +233,14 @@ export function Dashboard() {
             animateRows
             enableCellTextSelection
           />
-        </div>
+        </Box>
 
-        <div className="panel__footer">
+        <Divider />
+
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', p: 1.5 }}>
           Showing {visibleCount} of {rowData.length} employees
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-      <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
+        </Typography>
+      </Paper>
+    </Box>
   );
 }
